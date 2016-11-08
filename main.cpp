@@ -71,7 +71,7 @@ bool validate(int x, int y) {
 void getAImove() {
     int x = rand() % 3;
     int y = rand() % 3;
-    if (!validate(x,y)) {
+    if (board[x][y][2] != 0) { // if spot all full, pick another spot
         int x = rand() % 3;
         int y = rand() % 3;
     }
