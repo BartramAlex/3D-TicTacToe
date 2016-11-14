@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
+#include "AI.hpp"
 
 using namespace std;
 
@@ -9,8 +10,8 @@ int x, y, z; // hold the last place played
 void displayBoard();
 bool getTurn() {return true;}
 void getPlayerMove();
-bool validate();
 void getAImove();
+bool validate();
 int checkWin();
 
 int main()
@@ -79,11 +80,39 @@ bool validate() {
 }
 
 void getAImove() {
-    x = rand() % 3;
-    y = rand() % 3;
-    if (board[x][y][2] != 0) {
+    bool brk = false;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (checkPriority12(2,i,j,board)) {
+                x = i;
+                y = j;
+                brk = true;
+                break; // break from inner loop
+            }
+        }
+        if (brk) break; // break from outer loop
+    }
+    if (!brk) {
+        brk = false;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (checkPriority12(1,i,j,board)) {
+                    x = i;
+                    y = j;
+                    brk = true;
+                    break; // break from inner loop
+                }
+            }
+            if (brk) break; // break from outer loop
+        }
+    }
+    if (!brk) { // if no priority 1's, just do random for now
         x = rand() % 3;
         y = rand() % 3;
+        while (board[x][y][2] != 0) {
+            x = rand() % 3;
+            y = rand() % 3;
+        }
     }
     if (board[x][y][0] == 0) {z = 0;}
     else if (board[x][y][1] == 0) {z = 1;}
@@ -91,7 +120,7 @@ void getAImove() {
     board[x][y][z] = 2;
 }
 
-int checkWin() { // returns 0 for no win, 1 for player, 2 for AI (Does not yet check for full board)
+int checkWin() { // returns 0 for no win, 1 for player, 2 for AI, (and 3 for board full?)
     int in_a_row = 0;
     int winner = board[x][y][z]; // winner will be 1 or 2
     // check win in x direction
