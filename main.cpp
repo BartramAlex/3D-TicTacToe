@@ -81,6 +81,7 @@ bool validate() {
 
 void getAImove() {
     bool brk = false;
+    // check priority 1
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             if (checkPriority12(2,i,j,board)) {
@@ -92,7 +93,7 @@ void getAImove() {
         }
         if (brk) break; // break from outer loop
     }
-    if (!brk) {
+    if (!brk) { // if no 1s, check priority 2
         brk = false;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -106,7 +107,35 @@ void getAImove() {
             if (brk) break; // break from outer loop
         }
     }
-    if (!brk) { // if no priority 1's, just do random for now
+    if (!brk) { // if no 2s, check priority 3 and 4
+        brk = false;
+        int set_ups = 0;
+        int pri3[2] = {-1,-1};
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                set_ups = checkPriority34(i,j,board);
+                if (set_ups > 1) { // if priority 3, break put of loops
+                    x = i;
+                    y = j;
+                    brk = true;
+                    break; // break from inner loop
+                }
+                if (set_ups == 1) { // if priority 4, save it and continue to look for a priority 3
+                    pri3[0] = i;
+                    pri3[1] = j;
+                }
+            }
+            if (brk) break; // break from outer loop
+        }
+        if (!brk) { // if no 3s, check priority 4
+            if (pri3[0] != -1) {
+                x = pri3[0];
+                y = pri3[1];
+                brk = true;
+            }
+        }
+    }
+    if (!brk) { // if no priorities 1-4, choose a random spot
         x = rand() % 3;
         y = rand() % 3;
         while (board[x][y][2] != 0) {
