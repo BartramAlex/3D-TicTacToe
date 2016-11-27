@@ -284,3 +284,13 @@ int checkPriority34(int x, int y, int mainBoard[3][3][3]) { // returns number of
     }
     return set_ups;
 }
+
+int getPriority(int x, int y, int mainBoard[3][3][3]) {
+    if (mainBoard[x][y][2] != 0) return 6; // can't play in this spot
+    if (checkPriority12(2, x, y, mainBoard)) return 1;
+    if (checkPriority12(1, x, y, mainBoard)) return 2;
+    int n = checkPriority34(x, y, mainBoard);
+    if (n > 1) return 3;
+    if (n == 1) return 4;
+    return 5;
+}
