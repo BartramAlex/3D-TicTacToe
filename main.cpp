@@ -8,7 +8,7 @@ using namespace std;
 int board[3][3][3] = {0};
 int x, y, z; // hold the last place played
 void displayBoard();
-bool getTurn() {return true;}
+//bool getTurn() {return true;}
 void getPlayerMove();
 void getAImove();
 bool validate();
@@ -19,10 +19,10 @@ int main()
     srand (time(NULL));
     cout << "Welcome to 3D tic-tac-toe\n";
     displayBoard();
-    if (getTurn()) {
+    /*if (getTurn()) {
         getPlayerMove();
         displayBoard();
-    }
+    }*/
     int cont = 0;
     do {
         getAImove();
@@ -80,69 +80,36 @@ bool validate() {
 }
 
 void getAImove() {
-    bool brk = false;
-    // check priority 1
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (checkPriority12(2,i,j,board)) {
-                x = i;
-                y = j;
-                brk = true;
-                break; // break from inner loop
+    // get priorities for each spot and record the highest priority
+    int p = 7; // which priority is highest
+    int n = 0; // how many of that priority there is
+    int priorities[3][3];
+    for (int i=0; i<3; i++) { // ****************************************** PARALLELIZE ***********************************************
+        for (int j=0; j<3; j++) {
+            priorities[i][j] = getPriority(i, j, board);
+            if (priorities[i][j] < p) {
+                p = priorities[i][j];
+                n = 1;
             }
+            else if (priorities[i][j] == p) ++n;
         }
-        if (brk) break; // break from outer loop
     }
-    if (!brk) { // if no 1s, check priority 2
-        brk = false;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (checkPriority12(1,i,j,board)) {
+
+    int choice = rand() % n; // choose randomly between spots of the highest priority
+    for (int i=0; i<3; i++) {
+        for (int j=0; j<3; j++) {
+            if (priorities[i][j] == p) {
+                if (choice == 0) {
                     x = i;
                     y = j;
-                    brk = true;
-                    break; // break from inner loop
+                    break;
                 }
-            }
-            if (brk) break; // break from outer loop
-        }
-    }
-    if (!brk) { // if no 2s, check priority 3 and 4
-        brk = false;
-        int set_ups = 0;
-        int pri3[2] = {-1,-1};
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                set_ups = checkPriority34(i,j,board);
-                if (set_ups > 1) { // if priority 3, break put of loops
-                    x = i;
-                    y = j;
-                    brk = true;
-                    break; // break from inner loop
-                }
-                if (set_ups == 1) { // if priority 4, save it and continue to look for a priority 3
-                    pri3[0] = i;
-                    pri3[1] = j;
-                }
-            }
-            if (brk) break; // break from outer loop
-        }
-        if (!brk) { // if no 3s, check priority 4
-            if (pri3[0] != -1) {
-                x = pri3[0];
-                y = pri3[1];
-                brk = true;
+                else --choice;
             }
         }
     }
-    if (!brk) { // if no priorities 1-4, choose a random spot
-        x = rand() % 3;
-        y = rand() % 3;
-        while (board[x][y][2] != 0) {
-            x = rand() % 3;
-            y = rand() % 3;
-        }
-    }
+
+    // place choice on board;
     if (board[x][y][0] == 0) {z = 0;}
     else if (board[x][y][1] == 0) {z = 1;}
     else {z = 2;}
