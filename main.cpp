@@ -1,12 +1,13 @@
 #include <iostream>
 #include <cstdlib>
-#include <time.h>
+#include <ctime>
 #include "AI.hpp"
 #include <omp.h>
 
 using namespace std;
 
-const int SIZE = 4;
+const int SIZE = 50;
+const int threadNum = 10;
 
 int board[SIZE*SIZE*SIZE] = {0};
 int x, y, z; // hold the last place played
@@ -16,21 +17,21 @@ void getAImove();
 bool validate();
 int checkWin();
 
-int main(int argc, char *argv[])
+int main()
 {
     srand (time(NULL));
     cout << "Welcome to 3D tic-tac-toe\n";
     int cont = 0;
     do {
         getAImove();
-        displayBoard();
+        //displayBoard();
         cont = checkWin();
         if (cont == 2) {
             cout << "AI won.\n";
             break; // breaks from the do while
         }
         getPlayerMove();
-        displayBoard();
+        //displayBoard();
         cont = checkWin();
         if (cont == 1) {
             cout << "You won!\n";
@@ -91,21 +92,18 @@ void getAImove() {
     clock_t startTime, endTime;
     startTime = clock();
 
-    # pragma omp parallel num_threads(SIZE*SIZE)
-    {
-        int i = omp_get_thread_num();
-
-    //for (int i=0; i<SIZE*SIZE; i++) { // replace with parallel code
-        priorities[i] = getPriority(i%SIZE, i/SIZE, board, SIZE);
-        if (priorities[i] < p) {
-            p = priorities[i];
-            n = 1;
-        }
-        else if (priorities[i] == p) ++n;
-    }
-    #pragma omp barrier
+    # pragma omp parallel for num_threads(threadNum)
+	for (int j=0; j<SIZE*SIZE; j++) {
+		priorities[j] = getPriority(j%SIZE, j/SIZE, board, SIZE);
+		if (priorities[j] < p) {
+			p = priorities[j];
+			n = 1;
+		}
+		else if (priorities[j] == p) ++n;
+	}
+	
     endTime = clock();
-    cout << "Time in parallel: " << (double)(endTime - startTime)/CLOCKS_PER_SEC << endl;
+    cout << "Time: " << (double)(endTime - startTime)/CLOCKS_PER_SEC << endl;
 
     int choice = rand() % n; // choose randomly between spots of the highest priority
     for (int i=0; i<SIZE*SIZE; i++) {
@@ -162,7 +160,7 @@ int checkWin() { // returns 0 for no win, 1 for player, 2 for AI, (and 3 for boa
     }
     if (x + y == SIZE-1) { // if on the second diagonal
         for (int i = 0; i < SIZE; i++) {
-            if (board[i+SIZE*(2-i+SIZE*z)] == winner)
+            if (board[i+SIZE*(SIZE-1-i+SIZE*z)] == winner)
                 ++in_a_row;
         }
         if (in_a_row == SIZE) return winner;
@@ -179,7 +177,7 @@ int checkWin() { // returns 0 for no win, 1 for player, 2 for AI, (and 3 for boa
     }
     if (x + z == SIZE-1) { // if on the second diagonal
         for (int i = 0; i < SIZE; i++) {
-            if (board[i+SIZE*(y+SIZE*(2-i))] == winner)
+            if (board[i+SIZE*(y+SIZE*(SIZE-1-i))] == winner)
                 ++in_a_row;
         }
         if (in_a_row == SIZE) return winner;
@@ -187,7 +185,7 @@ int checkWin() { // returns 0 for no win, 1 for player, 2 for AI, (and 3 for boa
     }
     // check win in yz diagonals if spot is on that diagonal
     if (y == z) { // if on first diagonal
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < SIZE; i++) {
             if (board[x+SIZE*(i+SIZE*i)] == winner)
                 ++in_a_row;
         }
@@ -196,7 +194,7 @@ int checkWin() { // returns 0 for no win, 1 for player, 2 for AI, (and 3 for boa
     }
     if (y + z == SIZE-1) { // if on the second diagonal
         for (int i = 0; i < SIZE; i++) {
-            if (board[x+SIZE*(2-i+SIZE*(2-i))] == winner)
+            if (board[x+SIZE*(SIZE-1-i+SIZE*(SIZE-1-i))] == winner)
                 ++in_a_row;
         }
         if (in_a_row == SIZE) return winner;
@@ -213,7 +211,7 @@ int checkWin() { // returns 0 for no win, 1 for player, 2 for AI, (and 3 for boa
     }
     if (x + y == SIZE-1 && y == z) { // if on the (2,0,0) to (0,2,2) diagonal
         for (int i = 0; i < SIZE; i++) {
-            if (board[2-i+SIZE*(i+SIZE*i)] == winner)
+            if (board[SIZE-1-i+SIZE*(i+SIZE*i)] == winner)
                 ++in_a_row;
         }
         if (in_a_row == SIZE) return winner;
@@ -221,7 +219,7 @@ int checkWin() { // returns 0 for no win, 1 for player, 2 for AI, (and 3 for boa
     }
     if (x + y == SIZE-1 && x == z) { // if on the (0,2,0) to (2,0,2) diagonal
         for (int i = 0; i < SIZE; i++) {
-            if (board[i+SIZE*(2-i+SIZE*i)] == winner)
+            if (board[i+SIZE*(SIZE-1-i+SIZE*i)] == winner)
                 ++in_a_row;
         }
         if (in_a_row == SIZE) return winner;
@@ -229,7 +227,7 @@ int checkWin() { // returns 0 for no win, 1 for player, 2 for AI, (and 3 for boa
     }
     if (x + z == SIZE-1 && x == y) { // if on the (0,0,2) to (2,2,0) diagonal
         for (int i = 0; i < SIZE; i++) {
-            if (board[i+SIZE*(i+SIZE*(2-i))] == winner)
+            if (board[i+SIZE*(i+SIZE*(SIZE-1-i))] == winner)
                 ++in_a_row;
         }
         if (in_a_row == SIZE) return winner;
