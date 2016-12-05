@@ -91,15 +91,12 @@ void getAImove() {
     clock_t startTime, endTime;
     startTime = clock();
 
-    # pragma omp parallel num_threads(9)
+    # pragma omp parallel num_threads(SIZE*SIZE)
     {
-        int rank = omp_get_thread_num();
-        int i = rank%3;
-        int j = rank/3;*/
+        int i = omp_get_thread_num();
 
-    for (int i=0; i<SIZE*SIZE; i++) { // replace with parallel code
+    //for (int i=0; i<SIZE*SIZE; i++) { // replace with parallel code
         priorities[i] = getPriority(i%SIZE, i/SIZE, board, SIZE);
-        //cout << "For " << i << ": p = " << priorities[i] << endl;
         if (priorities[i] < p) {
             p = priorities[i];
             n = 1;
