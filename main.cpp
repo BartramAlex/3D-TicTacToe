@@ -48,7 +48,7 @@ int main()
     return 0;
 }
 
-
+// displays the game board using cout
 void displayBoard() {
     for (int i=0; i<SIZE*SIZE*SIZE; i++) {
         if (board[i] == 1) cout << " X ";
@@ -65,6 +65,8 @@ void displayBoard() {
     }
     cout << "~~~~~~~~~~~~~~~~~~\n";
 }
+
+// asks the user for x and y values for their move, varifies, and adds to board
 void getPlayerMove() {
     cout << "Enter 2 numbers to pick a spot:";
     cin >> x;
@@ -83,11 +85,13 @@ void getPlayerMove() {
     board[x+SIZE*(y+SIZE*z)] = 1;
 }
 
+// checks the user's play to see if it is on the board and available
 bool validate() {
     if (board[x-1+SIZE*(y-1)] != 0) return false; // if spot all full, return false
     return (x > 0 && x <= SIZE) && (y > 0 && y <= SIZE);
 }
 
+// gets the AI's next move
 void getAImove() {
     // get priorities for each spot and record the highest priority
     int p = 7; // which priority is highest
@@ -131,7 +135,8 @@ void getAImove() {
     board[x+SIZE*(y+SIZE*z)] = 2;
 }
 
-int checkWin() { // returns 0 for no win, 1 for player, 2 for AI, (and 3 for board full?)
+// checks to see if anyone won the game
+int checkWin() { // returns 0 for no win, 1 for player, 2 for AI
     int in_a_row = 0;
     int winner = board[x+SIZE*(y+SIZE*z)]; // winner will be 1 or 2
     // check win in x direction
