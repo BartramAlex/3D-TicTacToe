@@ -1,3 +1,5 @@
+// Written by Lydia White and Alex Bartram
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -6,10 +8,14 @@
 
 using namespace std;
 
-const int SIZE = 50;
-const int threadNum = 10;
+const int SIZE = 3;
+const int threadNum = 3;
 
 int board[SIZE*SIZE*SIZE] = {0};
+/* NOTE: I started this program using a 3D array for board,
+** but had to change to a 1D array so I could easily change the size.
+** This is why I have x,y,z instead of just one value, 
+** though it makes getting values from the board confusing */
 int x, y, z; // hold the last place played
 void displayBoard();
 void getPlayerMove();
@@ -24,14 +30,14 @@ int main()
     int cont = 0;
     do {
         getAImove();
-        //displayBoard();
+        displayBoard();
         cont = checkWin();
         if (cont == 2) {
             cout << "AI won.\n";
             break; // breaks from the do while
         }
         getPlayerMove();
-        //displayBoard();
+        displayBoard();
         cont = checkWin();
         if (cont == 1) {
             cout << "You won!\n";
